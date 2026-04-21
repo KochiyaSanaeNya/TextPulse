@@ -27,12 +27,14 @@ int run_app(const char* title, float red, float green, float blue) {
     std::cerr << "OpenAL device creation failed, continue without audio\n";
   } else {
     audio_context = alcCreateContext(audio_device, nullptr);
-    if (audio_context == nullptr || alcMakeContextCurrent(audio_context) == ALC_FALSE) {
+    if (audio_context == nullptr) {
       std::cerr << "OpenAL context creation failed, continue without audio\n";
-      if (audio_context != nullptr) {
-        alcDestroyContext(audio_context);
-        audio_context = nullptr;
-      }
+      alcCloseDevice(audio_device);
+      audio_device = nullptr;
+    } else if (alcMakeContextCurrent(audio_context) == ALC_FALSE) {
+      std::cerr << "OpenAL context activation failed, continue without audio\n";
+      alcDestroyContext(audio_context);
+      audio_context = nullptr;
       alcCloseDevice(audio_device);
       audio_device = nullptr;
     }
